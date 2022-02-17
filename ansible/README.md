@@ -1,6 +1,6 @@
 Initial setup:
 
-start an ubuntu VM
+start an ubuntu VM with the username "user" and password "pass"
 
 In the VM:
    Install and start SSH server:
@@ -12,7 +12,7 @@ In the VM:
    $ ipaddr
 
 On the Host: 
-   ssh-copy-id <username>@<VM-IP>
+   ssh-copy-id user@<VM-IP>
    sudo apt-get install sshpass
 
    add the following lines in /etc/ansible/hosts: 

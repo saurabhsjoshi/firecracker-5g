@@ -15,8 +15,9 @@ On the Host:
    ssh-copy-id <username>@<VM-IP>
    sudo apt-get install sshpass
 
-   add the following line in /etc/ansible/hosts: 
-   <VM-IP> ansible_ssh_pass=<password> ansible_ssh_user=<username> ansible_become_password=<password>
+   add the following lines in /etc/ansible/hosts: 
+   [my-vm]
+   192.168.0.19 ansible_ssh_pass=pass ansible_ssh_user=user ansible_become_password=pass
 
 
 To run:

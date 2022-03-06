@@ -1,24 +1,30 @@
-Initial setup:
+# Ansible Deployment
 
-start an ubuntu VM with the username "user" and password "pass"
+## Pre-requisites
+- Start an Ubuntu VM with the username `user` and password `pass`
 
-In the VM:
-   Install and start SSH server:
-   $ sudo apt-get install openssh-server
-   $ sudo systemctl enable ssh
-   $ sudo systemctl start ssh
+- Install SSH server on the VM:
+   ```commandline
+   sudo apt-get install openssh-server
+   sudo systemctl enable ssh
+   sudo systemctl start ssh
+   ```
+   
+- Find the IP address of the VM using `ip addr`
 
-   Take note of the IP address using:
-   $ ipaddr
-
-On the Host: 
+- Copy the SSH id on the host:
+   ```commandline
    ssh-copy-id user@<VM-IP>
    sudo apt-get install sshpass
-
-   add the following lines in /etc/ansible/hosts: 
+   ```
+- Replace the IP address in inventory file with your VM's IP
+   ```yaml
    [my-vm]
-   192.168.0.19 ansible_ssh_pass=pass ansible_ssh_user=user ansible_become_password=pass
+   control-plane-1 ansible_host=192.168.0.146
+   ```
+- Replace the `sudo` password in `host_vars/control-plane-1.yaml`
 
-
-To run:
-$ ansible-playbook  setup_playbook.yml
+- Run playbook
+   ```commandline
+   ansible-playbook setup_playbook.yml
+   ```

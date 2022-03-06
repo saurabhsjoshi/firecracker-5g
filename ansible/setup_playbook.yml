@@ -1,6 +1,6 @@
 ---
   - name: Playbook
-    hosts: my-vm
+    hosts: control_plane
     become: yes
 
     tasks:

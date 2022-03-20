@@ -1,11 +1,26 @@
-- src: geerlingguy.docker
-  version: 4.1.3
+---
 
-- src: https://github.com/andrewrothstein/ansible-firecracker.git
-  name: andrewrothstein.firecracker
-  version: v2.0.0
+collections:
+  - name: ansible.posix
+    version: 1.3.0
 
+roles:
 
-- src: https://github.com/andrewrothstein/ansible-weaveworks_ignite.git
-  name: andrewrothstein.weaveworks_ignite
-  version: 46f653e1ca65017c7643cf0adf1c7781b154f040
+  - src: geerlingguy.docker
+    version: 4.1.3
+
+  - src: https://github.com/andrewrothstein/ansible-firecracker.git
+    name: andrewrothstein.firecracker
+    version: v2.0.0
+
+  - src: https://github.com/andrewrothstein/ansible-weaveworks_ignite.git
+    name: andrewrothstein.weaveworks_ignite
+    version: 46f653e1ca65017c7643cf0adf1c7781b154f040
+
+  - src: https://github.com/darkwizard242/ansible-role-cni.git
+    name: darkwizard242.cni
+    version: 2.0.2
+
+  - src: https://github.com/geerlingguy/ansible-role-containerd.git
+    name: geerlingguy.containerd
+    version: 7bd576e6f85ca24dfaa153b0405f63f3ab97a38e

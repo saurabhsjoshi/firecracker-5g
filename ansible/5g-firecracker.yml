@@ -1,11 +1,48 @@
 - name: 5G-Firecracker
   hosts: all
-  become: yes
-  roles:
-  
-    - role: geerlingguy.docker
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
-    - role: andrewrothstein.firecracker
+  pre_tasks:
+    - name: Enable ipv4 forwarding
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+    - name: Install binutils
+      ansible.builtin.package:
+        name: binutils
+        state: present
 
-    - role: andrewrothstein.weaveworks_ignite
-      weaveworks_ignite_install_dir: /usr/bin
+  tasks:
+    - name: Install containerd
+      include_role:
+        name: geerlingguy.containerd
+    
+    - name: Install docker
+      include_role:
+        name: geerlingguy.docker
+    
+    - name: Set CNI install directory
+      stat: path=/opt/cni/bin
+      register: cni_install_path
+
+    - name: Install CNI
+      include_role:
+        name: darkwizard242.cni
+      vars:
+        cni_version: 0.9.1
+      when: cni_install_path.stat.exists == False
+    
+    - name: Install firecracker
+      include_role:
+        name: andrewrothstein.firecracker
+
+    - name: Install weave ignite
+      include_role:
+        name: andrewrothstein.weaveworks_ignite
+      vars:
+        weaveworks_ignite_install_dir: /usr/bin

@@ -1,5 +1,8 @@
 # Ansible Deployment
 
+## Supported Operating System
+- This Ansible script has only been tested on Ubuntu 20.04 LTS host and guest 
+
 ## Pre-requisites
 - Start an Ubuntu VM with the username `user` and password `pass`
 
@@ -24,9 +27,10 @@
    ```
 - Replace the `sudo` password in `host_vars/server.yaml`
 
-- Install external roles
+- Install external roles and collections
   ```commandline
   ansible-galaxy install -p external/ -r requirements.yml
+  ansible-galaxy collection install -p external/ -r requirements.yml 
   ```
 
 - Run playbook

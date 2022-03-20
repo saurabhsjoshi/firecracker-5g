@@ -1,0 +1,6 @@
+---
+
+- name: Pull UE image
+  community.docker.docker_image:
+    name: joshio94/ueransim-ue
+    source: pull

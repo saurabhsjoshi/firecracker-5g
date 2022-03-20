@@ -25,6 +25,13 @@
     - name: Install docker
       include_role:
         name: geerlingguy.docker
+
+    - name: Install docker SDK
+      include_role:
+        name: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - name: docker
     
     - name: Set CNI install directory
       stat: path=/opt/cni/bin
@@ -46,3 +53,19 @@
         name: andrewrothstein.weaveworks_ignite
       vars:
         weaveworks_ignite_install_dir: /usr/bin
+
+    - name: Setup 5G core control plane
+      include_role:
+        name: 5gc_cp
+    
+    - name: Setup 5G core user plane
+      include_role:
+        name: 5gc_cp
+
+    - name: Setup gNodeB
+      include_role:
+        name: gnb
+
+    - name: Setup user equipment simulator
+      include_role:
+        name: ue

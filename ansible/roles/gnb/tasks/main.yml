@@ -1,0 +1,6 @@
+---
+
+- name: Pull gNodeB image
+  community.docker.docker_image:
+    name: joshio94/ueransim-gnb
+    source: pull

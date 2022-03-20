@@ -1,0 +1,4 @@
+# Exclude everything in external
+ansible/external/*
+# Except git keep
+!ansible/external/.gitkeep

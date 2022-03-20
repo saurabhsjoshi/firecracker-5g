@@ -1,0 +1,11 @@
+- src: geerlingguy.docker
+  version: 4.1.3
+
+- src: https://github.com/andrewrothstein/ansible-firecracker.git
+  name: andrewrothstein.firecracker
+  version: v2.0.0
+
+
+- src: https://github.com/andrewrothstein/ansible-weaveworks_ignite.git
+  name: andrewrothstein.weaveworks_ignite
+  version: 46f653e1ca65017c7643cf0adf1c7781b154f040

@@ -1,0 +1,11 @@
+- name: 5G-Firecracker
+  hosts: all
+  become: yes
+  roles:
+  
+    - role: geerlingguy.docker
+
+    - role: andrewrothstein.firecracker
+
+    - role: andrewrothstein.weaveworks_ignite
+      weaveworks_ignite_install_dir: /usr/bin

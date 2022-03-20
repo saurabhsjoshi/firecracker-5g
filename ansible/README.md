@@ -19,12 +19,17 @@
    ```
 - Replace the IP address in inventory file with your VM's IP
    ```yaml
-   [my-vm]
-   control-plane-1 ansible_host=192.168.0.146
+   [server]
+   server ansible_host=192.168.0.146
    ```
-- Replace the `sudo` password in `host_vars/control-plane-1.yaml`
+- Replace the `sudo` password in `host_vars/server.yaml`
+
+- Install external roles
+  ```commandline
+  ansible-galaxy install -p external/ -r requirements.yml
+  ```
 
 - Run playbook
    ```commandline
-   ansible-playbook setup_playbook.yml
+   ansible-playbook 5g-firecracker.yml
    ```

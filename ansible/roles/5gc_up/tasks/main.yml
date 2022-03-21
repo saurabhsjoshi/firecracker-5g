@@ -1,6 +1,0 @@
----
-
-- name: Pull 5GC core base image
-  community.docker.docker_image:
-    name: joshio94/open5gs-base
-    source: pull

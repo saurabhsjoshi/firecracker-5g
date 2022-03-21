@@ -3,7 +3,7 @@ FROM weaveworks/ignite-ubuntu:20.04
 # Install Open5gs and disable all services by default
 RUN apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash - && \
-    apt-get install -y software-properties-common nodejs && \
+    apt-get install -y software-properties-common nodejs iptables && \
     add-apt-repository -y ppa:open5gs/latest && \
     apt-get update && \
     apt-get install -y open5gs && \

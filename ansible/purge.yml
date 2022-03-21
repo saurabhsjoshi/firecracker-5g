@@ -1,0 +1,20 @@
+---
+- name: 5G-Firecracker-Purge
+  hosts: all
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  
+  tasks:
+
+    - name: Stop and delete all vm
+      with_items:
+        - "ue"
+        - "gnb"
+        - "o5s-up"
+        - "o5s-cp"
+      include_role:
+        name: stop_vm
+      vars:
+        vm_name: "{{ item }}"
+  

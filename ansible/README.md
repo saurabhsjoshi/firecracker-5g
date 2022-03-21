@@ -8,8 +8,7 @@
 
 - Install SSH server on the VM:
    ```commandline
-   sudo apt-get install openssh-server
-   sudo systemctl enable ssh
+   sudo apt-get install openssh-server && \
    sudo systemctl start ssh
    ```
    
@@ -37,3 +36,8 @@
    ```commandline
    ansible-playbook 5g-firecracker.yml
    ```
+
+- Stop and delete VM(s)
+  ```commandline
+  ansible-playbook purge.yml
+  ```

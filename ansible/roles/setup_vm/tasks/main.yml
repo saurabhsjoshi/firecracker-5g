@@ -1,0 +1,33 @@
+---
+
+- name: Check if {{ vm_name }} vm already exists
+  shell: |
+    ignite ps -f {% raw %} "{{.ObjectMeta.Name}}={% endraw %}{{ vm_name }}" | grep {{ vm_name }}
+  register: vm_ps_output
+  failed_when: "vm_ps_output.rc not in [ 0, 1 ]"
+
+- name: Fail if {{ vm_name }} already exists
+  fail: msg="VM already exist please uninstall before running playbook"
+  when: vm_ps_output.stdout != ""
+
+- name: Create {{ vm_name }} vm
+  shell: |
+    ignite create {{ vm_image }} \
+    --name {{ vm_name }} \
+    --cpus {{ vm_cpus }} \
+    --memory {{ vm_memory }} \
+    --size {{ vm_size }} \
+    --ssh
+
+- name: Start {{ vm_name }} vm
+  shell: |
+    ignite start {{ vm_name }}
+
+- name: Get VM ip address
+  shell: |
+    ignite ps -f {% raw %} "{{.ObjectMeta.Name}}={% endraw %}{{vm_name}}{%raw%}" -t "{{.Status.Network.IPAddresses}}" {% endraw %}
+  register: vm_ip_addr_ouput
+
+- name: Store {{ vm_name }} IP address
+  set_fact:
+    vm_ip_addr: "{{ vm_ip_addr_ouput.stdout }}"

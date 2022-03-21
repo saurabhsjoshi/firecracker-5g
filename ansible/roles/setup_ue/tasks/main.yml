@@ -1,0 +1,17 @@
+---
+
+- name: Create ue install directory
+  file:
+    path: "{{ ue_install_dir }}"
+    state: directory
+    
+
+- name: Copy ue configuration
+  template:
+    src: open5gs-ue.yaml.j2
+    dest: "{{ ue_install_dir }}/open5gs-ue.yaml"
+
+- name: Copy configuration to ue VM
+  shell: |
+    ignite cp {{ ue_install_dir }}/open5gs-ue.yaml ue:/root/open5gs-ue.yaml && \
+    ignite exec ue chown root:root /root/open5gs-ue.yaml

@@ -1,0 +1,21 @@
+- name: Create user plane install directory
+  file:
+    path: "{{ up_install_dir }}"
+    state: directory
+    
+- name: Copy UPF configuration
+  template:
+    src: upf.yaml.j2
+    dest: "{{ up_install_dir }}/upf.yaml"
+
+- name: Copy files to user plane VM
+  shell: |
+    ignite cp "{{ up_install_dir }}/upf.yaml" o5s-up:/etc/open5gs/ && \
+    ignite exec o5s-up chown root:root /etc/open5gs/upf.yaml
+
+- name: Setup user plane networking
+  shell: |
+    ignite exec o5s-up "sysctl -w net.ipv4.ip_forward=1"
+    ignite exec o5s-up "ip addr add 10.45.0.1/16 dev ogstun"
+    ignite exec o5s-up ip link set ogstun up
+    ignite exec o5s-up "iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE"

@@ -1,0 +1,17 @@
+---
+
+- name: Create gNodeB install directory
+  file:
+    path: "{{ gnb_install_dir }}"
+    state: directory
+    
+
+- name: Copy gNodeB configuration
+  template:
+    src: open5gs-gnb.yaml.j2
+    dest: "{{ gnb_install_dir }}/open5gs-gnb.yaml"
+
+- name: Copy configuration to gNodeB VM
+  shell: |
+    ignite cp "{{ gnb_install_dir }}/open5gs-gnb.yaml" gnb:/root/open5gs-gnb.yaml && \
+    ignite exec gnb chown root:root /root/open5gs-gnb.yaml

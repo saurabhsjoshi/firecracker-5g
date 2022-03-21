@@ -1,0 +1,50 @@
+---
+
+- name: Create control plane install directory
+  file:
+    path: "{{ cp_install_dir }}"
+    state: directory
+    
+- name: Copy AMF configuration
+  template:
+    src: amf.yaml.j2
+    dest: "{{ cp_install_dir }}/amf.yaml"
+
+- name: Copy SMF configuration
+  template:
+    src: smf.yaml.j2
+    dest: "{{ cp_install_dir}}/smf.yaml"
+
+- name: Copy files to control plane VM
+  shell: |
+    ignite cp "{{ cp_install_dir }}/amf.yaml" o5s-cp:/etc/open5gs/ && \
+    ignite cp "{{ cp_install_dir }}/smf.yaml" o5s-cp:/etc/open5gs/ && \
+    ignite exec o5s-cp chown root:root /etc/open5gs/amf.yaml && \
+    ignite exec o5s-cp chown root:root /etc/open5gs/smf.yaml
+
+- name: Install web ui
+  shell: |
+    ignite exec o5s-cp "curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -"
+
+- name: Copy web ui config
+  copy:
+    src: open5gs-webui.service
+    dest: "{{ cp_install_dir }}/open5gs-webui.service"
+    
+- name: Copy web ui config to control plane VM
+  shell: |
+    ignite cp "{{ cp_install_dir }}/open5gs-webui.service" o5s-cp:/lib/systemd/system/ && \
+    ignite exec o5s-cp chown root:root /lib/systemd/system/open5gs-webui.service
+
+- name: Start web ui
+  shell: |
+    ignite exec o5s-cp systemctl daemon-reload
+    ignite exec o5s-cp systemctl start open5gs-webui
+
+- name: Add subscribers to the database
+  shell: |
+    ignite exec o5s-cp open5gs-dbctl add 901700000000001 "465B5CE8 B199B49F AA5F0A2E E238A6BC" "E8ED289D EBA952E4 283B54E8 8E6183CA" && \
+    ignite exec o5s-cp open5gs-dbctl add 901700000000002 "465B5CE8 B199B49F AA5F0A2E E238A6BC" "E8ED289D EBA952E4 283B54E8 8E6183CA" && \
+    ignite exec o5s-cp open5gs-dbctl add 901700000000003 "465B5CE8 B199B49F AA5F0A2E E238A6BC" "E8ED289D EBA952E4 283B54E8 8E6183CA" && \
+    ignite exec o5s-cp open5gs-dbctl add 901700000000004 "465B5CE8 B199B49F AA5F0A2E E238A6BC" "E8ED289D EBA952E4 283B54E8 8E6183CA" && \
+    ignite exec o5s-cp open5gs-dbctl add 901700000000005 "465B5CE8 B199B49F AA5F0A2E E238A6BC" "E8ED289D EBA952E4 283B54E8 8E6183CA"

@@ -1,0 +1,11 @@
+---
+
+- name: Stop {{ vm_name }}
+  shell: |
+    ignite stop {{ vm_name }}
+  ignore_errors: yes
+
+- name: Delete {{ vm_name }}
+  shell: |
+    ignite rm {{ vm_name }}
+  ignore_errors: yes

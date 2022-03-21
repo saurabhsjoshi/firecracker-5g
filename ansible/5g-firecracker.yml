@@ -12,19 +12,35 @@
         sysctl_set: yes
         state: present
         reload: yes
+      tags:
+      - deps
+
     - name: Install binutils
       ansible.builtin.package:
         name: binutils
         state: present
+      tags:
+      - deps
+
+    - name: Create install directory
+      file:
+        path: "{{ application_install_directory }}"
+        state: directory
+      tags:
+      - deps
 
   tasks:
     - name: Install containerd
       include_role:
         name: geerlingguy.containerd
+      tags:
+      - deps
     
     - name: Install docker
       include_role:
         name: geerlingguy.docker
+      tags:
+      - deps
 
     - name: Install docker SDK
       include_role:
@@ -32,10 +48,14 @@
       vars:
         pip_install_packages:
           - name: docker
+      tags:
+      - deps
     
     - name: Set CNI install directory
       stat: path=/opt/cni/bin
       register: cni_install_path
+      tags:
+      - deps
 
     - name: Install CNI
       include_role:
@@ -43,29 +63,116 @@
       vars:
         cni_version: 0.9.1
       when: cni_install_path.stat.exists == False
+      tags:
+      - deps
     
     - name: Install firecracker
       include_role:
         name: andrewrothstein.firecracker
+      tags:
+      - deps
 
     - name: Install weave ignite
       include_role:
         name: andrewrothstein.weaveworks_ignite
       vars:
         weaveworks_ignite_install_dir: /usr/bin
+      tags:
+      - deps
 
     - name: Setup 5G core control plane
       include_role:
-        name: 5gc_cp
-    
+        name: setup_vm
+      vars:
+        vm_image: joshio94/open5gs-base
+        vm_name: o5s-cp
+        vm_cpus: 2
+        vm_memory: 1GB
+        vm_size: 5GB
+
+    - name: Store 5G core control plane IP address
+      set_fact:
+        o5s_cp_ip_addr: "{{ vm_ip_addr }}"
+
     - name: Setup 5G core user plane
       include_role:
-        name: 5gc_cp
+        name: setup_vm
+      vars:
+        vm_image: joshio94/open5gs-base
+        vm_name: o5s-up
+        vm_cpus: 2
+        vm_memory: 1GB
+        vm_size: 5GB
+      
+    - name: Store 5G core user plane IP address
+      set_fact:
+        o5s_up_ip_addr: "{{ vm_ip_addr }}"
 
     - name: Setup gNodeB
       include_role:
-        name: gnb
+        name: setup_vm
+      vars:
+        vm_image: joshio94/ueransim-gnb
+        vm_name: gnb
+        vm_cpus: 2
+        vm_memory: 1GB
+        vm_size: 5GB
+        
+    - name: Store gNodeB ip address
+      set_fact:
+        gnb_ip_addr: "{{ vm_ip_addr }}"
 
-    - name: Setup user equipment simulator
+    - name: Setup UE
       include_role:
-        name: ue
+        name: setup_vm
+      vars:
+        vm_image: joshio94/ueransim-ue
+        vm_name: ue
+        vm_cpus: 2
+        vm_memory: 1GB
+        vm_size: 5GB
+        
+    - name: Store UE ip address
+      set_fact:
+        ue_ip_addr: "{{ vm_ip_addr }}"
+
+    - name: Configure control plane
+      include_role:
+        name: setup_cp
+
+    - name: Configure user plane
+      include_role:
+        name: setup_up
+
+    - name: Configure gNodeB
+      include_role:
+        name: setup_gnb
+
+    - name: Configure UE
+      include_role:
+        name: setup_ue
+
+    - name: Start control plane
+      shell: |
+        ignite exec o5s-cp systemctl start open5gs-nrfd && \
+        sleep 5 && \
+        ignite exec o5s-cp systemctl start open5gs-smfd && \
+        ignite exec o5s-cp systemctl start open5gs-amfd && \
+        ignite exec o5s-cp systemctl start open5gs-ausfd && \
+        ignite exec o5s-cp systemctl start open5gs-udmd && \
+        ignite exec o5s-cp systemctl start open5gs-udrd && \
+        ignite exec o5s-cp systemctl start open5gs-pcfd && \
+        ignite exec o5s-cp systemctl start open5gs-nssfd && \
+        ignite exec o5s-cp systemctl start open5gs-bsfd
+
+    - name: Start user plane
+      shell: |
+        ignite exec o5s-up systemctl start open5gs-upfd
+
+    - name: Start gNodeB
+      shell: |
+        nohup ignite exec gnb "nr-gnb -c /root/open5gs-gnb.yaml" > {{ application_install_directory }}/gnb.log 2>&1 &
+    
+    - name: Start ue
+      shell: |
+        nohup ignite exec ue "nr-ue -c /root/open5gs-ue.yaml -n 3" > {{ application_install_directory }}/ue.log 2>&1 &
